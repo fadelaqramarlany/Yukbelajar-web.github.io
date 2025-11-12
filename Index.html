@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Belajar Yuk dengan Fadel</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: url('https://i.imgur.com/zJhFvYv.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .login-box, .kelas-box, .quiz-box, .hasil-box {
+      display: none;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .question {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .option {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    .option:hover {
+      background: #d0e6f7;
+    }
+    .leaderboard {
+      margin-top: 20px;
+    }
+    .leaderboard-item {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Belajar Yuk dengan Fadel</h1>
+
+    <div class="login-box">
+      <h2>Masuk Dulu</h2>
+      <input type="text" id="nama" placeholder="Masukkan nama kamu" style="width: 100%; padding:10px; border-radius:10px;">
+      <br><br>
+      <button onclick="login()">Masuk</button>
+    </div>
+
+    <div class="kelas-box">
+      <h2>Pilih Jenjang</h2>
+      <button onclick="mulaiKuis('sd')">SD</button>
+      <button onclick="mulaiKuis('smp')">SMP</button>
+    </div>
+
+    <div class="quiz-box">
+      <h2 id="kelas-title"></h2>
+      <div id="quiz-container"></div>
+      <button id="next-btn" onclick="nextQuestion()">Lanjut</button>
+    </div>
+
+    <div class="hasil-box">
+      <h2>Hasil Kuis</h2>
+      <p id="hasil-text"></p>
+      <button onclick="lihatRanking()">Lihat Ranking</button>
+      <button onclick="resetGame()">Ulangi</button>
+
+      <div class="leaderboard" id="leaderboard"></div>
+    </div>
+  </div>
+
+  <script>
+    const soal = {
+      sd: [
+        {q: "Siapa pencipta lagu Indonesia Raya?", o:["WR Supratman","Soekarno","Hatta","Ki Hajar Dewantara"], a:"WR Supratman"},
+        {q: "Rukun Islam ada berapa?", o:["3","4","5","6"], a:"5"},
+        {q: "Negara kita adalah?", o:["Kerajaan","Republik","Monarki","Feodal"], a:"Republik"},
+        {q: "Hari Kemerdekaan Indonesia?", o:["17 Agustus","20 Mei","10 November","1 Juni"], a:"17 Agustus"},
+        {q: "Siapa Nabi terakhir?", o:["Isa","Musa","Muhammad","Nuh"], a:"Muhammad"},
+        {q: "Ibukota Indonesia adalah?", o:["Bandung","Jakarta","Surabaya","Medan"], a:"Jakarta"},
+        {q: "Lambang negara Indonesia adalah?", o:["Macan","Burung Garuda","Elang","Rajawali"], a:"Burung Garuda"},
+        {q: "Sila pertama Pancasila?", o:["Kemanusiaan","Ketuhanan","Persatuan","Keadilan"], a:"Ketuhanan"},
+        {q: "Warna bendera Indonesia?", o:["Merah Putih","Putih Merah","Merah Hijau","Putih Kuning"], a:"Merah Putih"},
+        {q: "Kitab suci umat Islam?", o:["Injil","Taurat","Al-Qur'an","Zabur"], a:"Al-Qur'an"},
+      ],
+      smp: [
+        {q: "Ibukota Provinsi Jawa Timur?", o:["Surabaya","Malang","Sidoarjo","Pasuruan"], a:"Surabaya"},
+        {q: "Hari kiamat disebut juga?", o:["Yaumul Hisab","Yaumul Jaza","Yaumul Qiyamah","Yaumul Akhir"], a:"Yaumul Qiyamah"},
+        {q: "Candi Borobudur berada di?", o:["Jawa Barat","Jawa Tengah","Jawa Timur","Bali"], a:"Jawa Tengah"},
+        {q: "Proklamasi kemerdekaan dibacakan pada tahun?", o:["1940","1945","1950","1965"], a:"1945"},
+        {q: "Jumlah provinsi di Indonesia tahun 2025?", o:["34","36","38","40"], a:"38"},
+        {q: "Kitab suci agama Kristen?", o:["Taurat","Al-Qur'an","Injil","Weda"], a:"Injil"},
+        {q: "Siapa tokoh perumus Pancasila?", o:["Soekarno","Hatta","Sutan Syahrir","Ki Hajar"], a:"Soekarno"},
+        {q: "Gunung tertinggi di Indonesia?", o:["Kerinci","Rinjani","Puncak Jaya","Semeru"], a:"Puncak Jaya"},
+        {q: "Ibu dari Nabi Isa AS bernama?", o:["Hawa","Maryam","Khadijah","Aisyah"], a:"Maryam"},
+        {q: "Bentuk bumi adalah?", o:["Datar","Bulat","Kotak","Segitiga"], a:"Bulat"},
+      ]
+    };
+
+    let userName = "";
+    let kelas = "";
+    let current = 0;
+    let score = 0;
+    let currentSoal = [];
+
+    document.querySelector(".login-box").style.display = "block";
+
+    function login() {
+      const nama = document.getElementById("nama").value.trim();
+      if (!nama) return alert("Masukkan nama dulu ya!");
+      userName = nama;
+      document.querySelector(".login-box").style.display = "none";
+      document.querySelector(".kelas-box").style.display = "block";
+    }
+
+    function mulaiKuis(level) {
+      kelas = level;
+      current = 0;
+      score = 0;
+      currentSoal = soal[level];
+      document.querySelector(".kelas-box").style.display = "none";
+      document.querySelector(".quiz-box").style.display = "block";
+      document.getElementById("kelas-title").innerText = 
+        level === "sd" ? "Kuis Sekolah Dasar" : "Kuis Sekolah Menengah Pertama";
+      tampilSoal();
+    }
+
+    function tampilSoal() {
+      const q = currentSoal[current];
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = `
+        <div class="question">${current+1}. ${q.q}</div>
+        ${q.o.map(opt => `<div class="option" onclick="pilihJawaban('${opt}')">${opt}</div>`).join("")}
+      `;
+    }
+
+    function pilihJawaban(jawab) {
+      const benar = currentSoal[current].a;
+      if (jawab === benar) score++;
+      document.querySelectorAll(".option").forEach(o => o.style.pointerEvents = "none");
+    }
+
+    function nextQuestion() {
+      if (current < 9) {
+        current++;
+        tampilSoal();
+      } else {
+        document.querySelector(".quiz-box").style.display = "none";
+        document.querySelector(".hasil-box").style.display = "block";
+        document.getElementById("hasil-text").innerText = 
+          `${userName}, skor kamu ${score}/10`;
+        simpanSkor(userName, score);
+      }
+    }
+
+    function simpanSkor(nama, skor) {
+      const data = JSON.parse(localStorage.getItem("ranking") || "[]");
+      data.push({nama, skor});
+      localStorage.setItem("ranking", JSON.stringify(data));
+    }
+
+    function lihatRanking() {
+      const data = JSON.parse(localStorage.getItem("ranking") || "[]");
+      data.sort((a,b) => b.skor - a.skor);
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "<h3>Peringkat</h3>" + 
+        data.map((d,i)=>`<div class="leaderboard-item">${i+1}. ${d.nama} - ${d.skor} poin</div>`).join("");
+    }
+
+    function resetGame() {
+      document.querySelector(".hasil-box").style.display = "none";
+      document.querySelector(".kelas-box").style.display = "block";
+    }
+  </script>
+</body>
+</html>
